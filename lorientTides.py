@@ -17,20 +17,27 @@ data = json.loads(output.stdout)
 
 highTimes = StringIO()
 lowTimes = StringIO()
+coef = None
+diff = None
 
 for tide in data[day]:
-        if tide[0] == 'tide.high':
-                coef = tide[3]
-                highTimes.write(f' {tide[1]}')
-        else:
-                lowTimes.write(f' {tide[1]}')
+	if tide[0] == 'tide.high':
+		if not coef:
+			coef = int(tide[3])
+		else:
+			diff = int(tide[3]) - coef
+			if diff >= 0:
+				diff = f'+{diff}'
+		highTimes.write(f' {tide[1]}')
+	else:
+		lowTimes.write(f' {tide[1]}')
 
 
 lcd = LCD.Adafruit_CharLCDPlate()
 lcd.set_color(0, 0, 0)
 lcd.clear()
 
-tides = f'{coef} {highTimes.getvalue()}\n   {lowTimes.getvalue()}'
+tides = f'{coef} {highTimes.getvalue()}\n{diff} {lowTimes.getvalue()}'
 print(tides)
 
 lcd.message(tides)
